@@ -1,3 +1,14 @@
+.dart_tool/
+.idea/
+.vscode/
+build/
+.packages
+.flutter-plugins
+.flutter-plugins-dependencies
+.gradle/
+/android/.gradle/
+/ios/Pods/
+
 # Miscellaneous
 *.class
 *.lock
