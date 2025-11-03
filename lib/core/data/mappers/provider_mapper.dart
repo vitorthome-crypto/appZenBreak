@@ -1,7 +1,11 @@
 import '../../domain/entities/provider.dart';
 import '../dtos/provider_dto.dart';
 
+/// Responsável por converter entre [ProviderDto] e [Provider].
+/// Contém toda a lógica de transformação de dados entre as camadas.
 class ProviderMapper {
+  // Construtor privado para evitar instanciação
+  ProviderMapper._();
   static Provider toEntity(ProviderDto d) {
     final md = d.metadata ?? const {};
     final tags = (md['tags'] as List?)?.whereType<String>().toSet() ?? {};

@@ -1,3 +1,5 @@
+/// DTO que representa um Provider no formato do banco de dados/API.
+/// Mantém os nomes dos campos em snake_case para correspondência direta.
 class ProviderDto {
   final int id;
   final String name;

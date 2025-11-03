@@ -1,3 +1,5 @@
+/// Representa um fornecedor no domínio da aplicação.
+/// Contém dados validados e formatados prontos para uso na UI.
 class Provider {
   final int id;
   final String name;
@@ -22,7 +24,8 @@ class Provider {
   }) : rating = rating.clamp(0.0, 5.0),
        tags = {...?tags};
 
-  /// Conveniência para a UI (texto pronto)
+  /// Retorna uma string formatada com rating e distância para exibição na UI.
+  /// Exemplo: "4.5 · 1.2 km"
   String get subtitle =>
       '${rating.toStringAsFixed(1)} · ${distanceKm?.toStringAsFixed(1) ?? '-'} km';
 }
