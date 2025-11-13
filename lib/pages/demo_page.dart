@@ -32,6 +32,7 @@ class _DemoPageState extends State<DemoPage> {
             if (_finished)
               ElevatedButton(
                 onPressed: () => Navigator.pushReplacementNamed(context, '/policy-viewer'),
+                style: ElevatedButton.styleFrom(side: const BorderSide(color: Colors.black), backgroundColor: const Color(0xFFBEEAF6)),
                 child: const Text('Agendar lembrete / Ver políticas'),
               )
             else

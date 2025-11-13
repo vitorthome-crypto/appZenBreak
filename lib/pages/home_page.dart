@@ -67,6 +67,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     // prefs are loaded once in initState
+    final calmColor = const Color(0xFFBEEAF6); // baby blue calm
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ZenBreak'),
@@ -84,6 +86,10 @@ class _HomePageState extends State<HomePage> {
             ],
           )
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(4),
+          child: Container(color: calmColor, height: 4),
+        ),
       ),
       body: Center(
     child: _inSession
@@ -112,7 +118,12 @@ class _HomePageState extends State<HomePage> {
                       prefs.setPauseDurationSeconds(_selectedDurationSeconds);
                       _startSession();
                     },
-                    style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(40)),
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: const EdgeInsets.all(40),
+                      backgroundColor: calmColor,
+                      side: const BorderSide(color: Colors.black),
+                    ),
                     child: const Text('Iniciar pausa', textAlign: TextAlign.center),
                   ),
                 ],
