@@ -13,6 +13,24 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _inSession = false;
   int _selectedDurationSeconds = 120;
+  bool _prefsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedDuration();
+  }
+
+  Future<void> _loadSavedDuration() async {
+    if (_prefsLoaded) return;
+    final prefs = await PrefsService.getInstance();
+    final saved = prefs.pauseDurationSeconds;
+    if (!mounted) return;
+    setState(() {
+      _selectedDurationSeconds = saved;
+      _prefsLoaded = true;
+    });
+  }
 
   void _startSession() {
     setState(() => _inSession = true);
@@ -43,12 +61,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Load saved preference (non-blocking; keep UI responsive)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final prefs = Provider.of<PrefsService>(context, listen: false);
-      final saved = prefs.pauseDurationSeconds;
-      if (saved != _selectedDurationSeconds) setState(() => _selectedDurationSeconds = saved);
-    });
+    // prefs are loaded once in initState
     return Scaffold(
       appBar: AppBar(
         title: const Text('ZenBreak'),
