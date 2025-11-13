@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/prefs_service.dart';
 import '../widgets/breathing_session.dart';
-import '../widgets/color_picker_wheel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -239,47 +238,164 @@ class _HomePageState extends State<HomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Color wheel picker
-                ColorPickerWheel(
-                  initialColor: selectedColor,
-                  onColorChanged: (color) {
-                    setState(() {
-                      selectedColor = color;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                // Quick presets
-                const Text('Presets:', style: TextStyle(fontWeight: FontWeight.bold)),
+                // Quick presets - cores variadas
+                const Text('Cores disponíveis:', style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFBEEAF6)),
-                      onPressed: () {
-                        setState(() {
-                          selectedColor = const Color(0xFFBEEAF6);
-                        });
+                    // Azul claro
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = const Color(0xFFBEEAF6));
                       },
-                      child: const Text('Azul claro'),
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFBEEAF6),
+                          border: Border.all(
+                            color: selectedColor == const Color(0xFFBEEAF6) ? Colors.black : Colors.grey,
+                            width: selectedColor == const Color(0xFFBEEAF6) ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Azul', style: TextStyle(fontSize: 10))),
+                      ),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDFF7E0)),
-                      onPressed: () {
-                        setState(() {
-                          selectedColor = const Color(0xFFDFF7E0);
-                        });
+                    // Verde claro
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = const Color(0xFFDFF7E0));
                       },
-                      child: const Text('Verde claro'),
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFDFF7E0),
+                          border: Border.all(
+                            color: selectedColor == const Color(0xFFDFF7E0) ? Colors.black : Colors.grey,
+                            width: selectedColor == const Color(0xFFDFF7E0) ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Verde', style: TextStyle(fontSize: 10))),
+                      ),
                     ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                      onPressed: () {
-                        setState(() {
-                          selectedColor = Colors.white;
-                        });
+                    // Rosa claro
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = const Color(0xFFFFDDD2));
                       },
-                      child: const Text('Branco'),
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFDDD2),
+                          border: Border.all(
+                            color: selectedColor == const Color(0xFFFFDDD2) ? Colors.black : Colors.grey,
+                            width: selectedColor == const Color(0xFFFFDDD2) ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Rosa', style: TextStyle(fontSize: 10))),
+                      ),
+                    ),
+                    // Roxo claro
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = const Color(0xFFE8D5F0));
+                      },
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE8D5F0),
+                          border: Border.all(
+                            color: selectedColor == const Color(0xFFE8D5F0) ? Colors.black : Colors.grey,
+                            width: selectedColor == const Color(0xFFE8D5F0) ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Roxo', style: TextStyle(fontSize: 10))),
+                      ),
+                    ),
+                    // Amarelo claro
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = const Color(0xFFFFF8DC));
+                      },
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF8DC),
+                          border: Border.all(
+                            color: selectedColor == const Color(0xFFFFF8DC) ? Colors.black : Colors.grey,
+                            width: selectedColor == const Color(0xFFFFF8DC) ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Amarelo', style: TextStyle(fontSize: 10))),
+                      ),
+                    ),
+                    // Cinza claro
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = const Color(0xFFF5F5F5));
+                      },
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F5F5),
+                          border: Border.all(
+                            color: selectedColor == const Color(0xFFF5F5F5) ? Colors.black : Colors.grey,
+                            width: selectedColor == const Color(0xFFF5F5F5) ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Cinza', style: TextStyle(fontSize: 10))),
+                      ),
+                    ),
+                    // Branco
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = Colors.white);
+                      },
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: selectedColor == Colors.white ? Colors.black : Colors.grey,
+                            width: selectedColor == Colors.white ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Branco', style: TextStyle(fontSize: 10))),
+                      ),
+                    ),
+                    // Laranja claro
+                    GestureDetector(
+                      onTap: () {
+                        setState(() => selectedColor = const Color(0xFFFFE0CC));
+                      },
+                      child: Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFE0CC),
+                          border: Border.all(
+                            color: selectedColor == const Color(0xFFFFE0CC) ? Colors.black : Colors.grey,
+                            width: selectedColor == const Color(0xFFFFE0CC) ? 3 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Center(child: Text('Laranja', style: TextStyle(fontSize: 10))),
+                      ),
                     ),
                   ],
                 ),
