@@ -36,6 +36,11 @@ class _HomePageState extends State<HomePage> {
     setState(() => _inSession = true);
   }
 
+  void _cancelSession() {
+    setState(() => _inSession = false);
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pausa cancelada'), duration: Duration(seconds: 2)));
+  }
+
   void _endSession() {
     setState(() => _inSession = false);
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pausa finalizada')));
@@ -81,8 +86,8 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Center(
-        child: _inSession
-            ? BreathingSession(durationSeconds: _selectedDurationSeconds, onFinished: _endSession)
+    child: _inSession
+      ? BreathingSession(durationSeconds: _selectedDurationSeconds, onFinished: _endSession, onCancel: _cancelSession)
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

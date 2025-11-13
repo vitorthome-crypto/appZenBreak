@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class BreathingSession extends StatefulWidget {
   final int durationSeconds;
   final VoidCallback? onFinished;
+  final VoidCallback? onCancel;
 
-  const BreathingSession({super.key, this.durationSeconds = 120, this.onFinished});
+  const BreathingSession({super.key, this.durationSeconds = 120, this.onFinished, this.onCancel});
 
   @override
   State<BreathingSession> createState() => _BreathingSessionState();
@@ -56,7 +57,21 @@ class _BreathingSessionState extends State<BreathingSession> with SingleTickerPr
                 final minutes = (remaining ~/ 60).clamp(0, 60);
                 final seconds = (remaining % 60).clamp(0, 59);
                 final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-                return Text(timeStr, style: Theme.of(context).textTheme.headlineSmall);
+                return Column(
+                  children: [
+                    Text(timeStr, style: Theme.of(context).textTheme.headlineSmall),
+                    const SizedBox(height: 12),
+                    // Mostrar botão de cancelar enquanto a sessão estiver rodando
+                    if (_ctrl.isAnimating)
+                      TextButton(
+                        onPressed: () {
+                          _ctrl.stop();
+                          widget.onCancel?.call();
+                        },
+                        child: const Text('Cancelar', style: TextStyle(color: Colors.red)),
+                      ),
+                  ],
+                );
               }),
             ],
           ),
