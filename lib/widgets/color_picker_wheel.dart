@@ -90,10 +90,16 @@ class _ColorPickerWheelState extends State<ColorPickerWheel> {
           ),
         ),
         const SizedBox(height: 12),
-        Text(
-          '#${(_hsv.toColor().hashCode & 0xFFFFFF).toRadixString(16).toUpperCase().padLeft(6, '0')}',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
+        Builder(builder: (context) {
+          final color = _hsv.toColor();
+          final r = (color.red * 255).toInt().toRadixString(16).padLeft(2, '0');
+          final g = (color.green * 255).toInt().toRadixString(16).padLeft(2, '0');
+          final b = (color.blue * 255).toInt().toRadixString(16).padLeft(2, '0');
+          return Text(
+            '#${(r + g + b).toUpperCase()}',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          );
+        }),
       ],
     );
   }

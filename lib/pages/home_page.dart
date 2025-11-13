@@ -288,7 +288,10 @@ class _HomePageState extends State<HomePage> {
     ));
 
     if (result != null) {
-      final hex = '#${(result.hashCode & 0xFFFFFF).toRadixString(16).toUpperCase().padLeft(6, '0')}';
+      final r = (result.red * 255).toInt().toRadixString(16).padLeft(2, '0');
+      final g = (result.green * 255).toInt().toRadixString(16).padLeft(2, '0');
+      final b = (result.blue * 255).toInt().toRadixString(16).padLeft(2, '0');
+      final hex = '#${(r + g + b).toUpperCase()}';
       await prefs.setBackgroundColorHex(hex);
       setState(() {});
     }
