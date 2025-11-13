@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/prefs_service.dart';
 import '../widgets/breathing_session.dart';
+import '../widgets/color_picker_wheel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -225,58 +226,70 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _pickBackgroundColor() async {
     final prefs = Provider.of<PrefsService>(context, listen: false);
-    final current = prefs.backgroundColorHex ?? '';
-    final controller = TextEditingController(text: current);
-    final result = await showDialog<String?>(context: context, builder: (c) => AlertDialog(
-      title: const Text('Escolher cor de fundo (hex)'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(controller: controller, decoration: const InputDecoration(labelText: 'Hex (ex: #BEEAF6)')),
-          const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
+    final current = prefs.backgroundColorHex ?? '#FFFFFF';
+    final initialColor = _colorFromHex(current) ?? Colors.white;
+    Color selectedColor = initialColor;
+
+    final result = await showDialog<Color?>(context: context, builder: (c) => AlertDialog(
+      title: const Text('Escolher cor de fundo'),
+      content: SizedBox(
+        width: 300,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFBEEAF6)),
-                onPressed: () => controller.text = '#BEEAF6',
-                child: const Text('Azul claro'),
+              // Color wheel picker
+              ColorPickerWheel(
+                initialColor: initialColor,
+                onColorChanged: (color) {
+                  selectedColor = color;
+                },
               ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDFF7E0)),
-                onPressed: () => controller.text = '#DFF7E0',
-                child: const Text('Verde claro'),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                onPressed: () => controller.text = '#FFFFFF',
-                child: const Text('Branco'),
+              const SizedBox(height: 16),
+              // Quick presets
+              const Text('Presets:', style: TextStyle(fontWeight: FontWeight.bold)),
+              Wrap(
+                spacing: 8,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFBEEAF6)),
+                    onPressed: () {
+                      selectedColor = const Color(0xFFBEEAF6);
+                    },
+                    child: const Text('Azul claro'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDFF7E0)),
+                    onPressed: () {
+                      selectedColor = const Color(0xFFDFF7E0);
+                    },
+                    child: const Text('Verde claro'),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                    onPressed: () {
+                      selectedColor = Colors.white;
+                    },
+                    child: const Text('Branco'),
+                  ),
+                ],
               ),
             ],
-          )
-        ],
+          ),
+        ),
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancelar')),
-        TextButton(onPressed: () {
-          final v = controller.text.trim();
-          if (v.isEmpty) {
-            Navigator.pop(c, null);
-            return;
-          }
-          // basic validation
-          final h = v.startsWith('#') ? v : '#$v';
-          if (!RegExp(r'^#([A-Fa-f0-9]{6})$').hasMatch(h)) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hex inválido (use RRGGBB)')));
-            return;
-          }
-          Navigator.pop(c, h);
-        }, child: const Text('OK')),
+        TextButton(
+          onPressed: () => Navigator.pop(c, selectedColor),
+          child: const Text('OK'),
+        ),
       ],
     ));
 
     if (result != null) {
-      await prefs.setBackgroundColorHex(result);
+      final hex = '#${(result.hashCode & 0xFFFFFF).toRadixString(16).toUpperCase().padLeft(6, '0')}';
+      await prefs.setBackgroundColorHex(hex);
       setState(() {});
     }
   }
