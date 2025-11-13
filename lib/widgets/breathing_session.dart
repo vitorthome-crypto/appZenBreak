@@ -62,20 +62,26 @@ class _BreathingSessionState extends State<BreathingSession> with TickerProvider
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Container(
-                    width: radius * 2,
-                    height: radius * 2,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Theme.of(context).colorScheme.primary.withAlpha((0.15 * 255).round()),
+              // Fixed area for the circle so pulse doesn't move surrounding widgets
+              SizedBox(
+                width: maxRadius * 2,
+                height: maxRadius * 2,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // circle scales inside fixed box
+                    Container(
+                      width: radius * 2,
+                      height: radius * 2,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Theme.of(context).colorScheme.primary.withAlpha((0.15 * 255).round()),
+                      ),
                     ),
-                  ),
-                  // App name inside circle
-                  Text('ZenBreak', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                ],
+                    // App name inside circle
+                    Text('ZenBreak', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
               Column(

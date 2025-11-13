@@ -37,6 +37,16 @@ class PrefsService {
   int get pauseDurationSeconds => _prefs.getInt('pause_duration_seconds') ?? 120;
   Future<void> setPauseDurationSeconds(int v) => _prefs.setInt('pause_duration_seconds', v);
 
+  // Background color (stored as hex string, e.g. #FFFFFF). Null = default.
+  String? get backgroundColorHex => _prefs.getString('background_color_hex');
+  Future<void> setBackgroundColorHex(String? v) async {
+    if (v == null) {
+      await _prefs.remove('background_color_hex');
+    } else {
+      await _prefs.setString('background_color_hex', v);
+    }
+  }
+
   // Convenience checks
   bool isAccepted(String version) => policiesVersionAccepted == version;
   bool isDemoDone() => demoCompleted;

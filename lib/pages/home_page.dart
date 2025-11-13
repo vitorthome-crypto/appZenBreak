@@ -69,7 +69,11 @@ class _HomePageState extends State<HomePage> {
     // prefs are loaded once in initState
     final calmColor = const Color(0xFFBEEAF6); // baby blue calm
 
+    final bgHex = Provider.of<PrefsService>(context, listen: false).backgroundColorHex;
+    final bgColor = _colorFromHex(bgHex) ?? Colors.white;
+
     return Scaffold(
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: const Text('ZenBreak'),
         actions: [
@@ -78,10 +82,12 @@ class _HomePageState extends State<HomePage> {
               if (v == 'revoke') await _revoke();
               if (v == 'policies') Navigator.pushNamed(context, '/policy-viewer');
               if (v == 'reminder') Navigator.pushNamed(context, '/reminder');
+              if (v == 'background') await _pickBackgroundColor();
             },
             itemBuilder: (c) => [
               const PopupMenuItem(value: 'reminder', child: Text('Ajustar lembrete')),
               const PopupMenuItem(value: 'policies', child: Text('Ver políticas')),
+              const PopupMenuItem(value: 'background', child: Text('Cor de fundo')),
               const PopupMenuItem(value: 'revoke', child: Text('Revogar aceite')),
             ],
           )
@@ -201,5 +207,77 @@ class _HomePageState extends State<HomePage> {
     final minutes = (total ~/ 60).clamp(0, 60);
     final seconds = (total % 60).clamp(0, 59);
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  Color? _colorFromHex(String? hex) {
+    if (hex == null || hex.isEmpty) return null;
+    var h = hex.trim();
+    if (!h.startsWith('#')) h = '#$h';
+    if (h.length == 7) {
+      try {
+        return Color(int.parse(h.substring(1), radix: 16) + 0xFF000000);
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _pickBackgroundColor() async {
+    final prefs = Provider.of<PrefsService>(context, listen: false);
+    final current = prefs.backgroundColorHex ?? '';
+    final controller = TextEditingController(text: current);
+    final result = await showDialog<String?>(context: context, builder: (c) => AlertDialog(
+      title: const Text('Escolher cor de fundo (hex)'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(controller: controller, decoration: const InputDecoration(labelText: 'Hex (ex: #BEEAF6)')),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFBEEAF6)),
+                onPressed: () => controller.text = '#BEEAF6',
+                child: const Text('Azul claro'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDFF7E0)),
+                onPressed: () => controller.text = '#DFF7E0',
+                child: const Text('Verde claro'),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                onPressed: () => controller.text = '#FFFFFF',
+                child: const Text('Branco'),
+              ),
+            ],
+          )
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancelar')),
+        TextButton(onPressed: () {
+          final v = controller.text.trim();
+          if (v.isEmpty) {
+            Navigator.pop(c, null);
+            return;
+          }
+          // basic validation
+          final h = v.startsWith('#') ? v : '#$v';
+          if (!RegExp(r'^#([A-Fa-f0-9]{6})$').hasMatch(h)) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hex inválido (use RRGGBB)')));
+            return;
+          }
+          Navigator.pop(c, h);
+        }, child: const Text('OK')),
+      ],
+    ));
+
+    if (result != null) {
+      await prefs.setBackgroundColorHex(result);
+      setState(() {});
+    }
   }
 }
