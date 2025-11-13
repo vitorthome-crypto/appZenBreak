@@ -50,7 +50,14 @@ class _BreathingSessionState extends State<BreathingSession> with SingleTickerPr
                 ),
               ),
               const SizedBox(height: 16),
-              Text('${(widget.durationSeconds * (1 - _ctrl.value)).ceil()}s', style: Theme.of(context).textTheme.headlineSmall),
+              // Mostrar tempo restante no formato MM:SS
+              Builder(builder: (context) {
+                final remaining = (widget.durationSeconds * (1 - _ctrl.value)).ceil();
+                final minutes = (remaining ~/ 60).clamp(0, 60);
+                final seconds = (remaining % 60).clamp(0, 59);
+                final timeStr = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+                return Text(timeStr, style: Theme.of(context).textTheme.headlineSmall);
+              }),
             ],
           ),
         );

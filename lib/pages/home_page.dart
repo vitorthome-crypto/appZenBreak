@@ -12,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _inSession = false;
+  int _selectedDurationSeconds = 120;
 
   void _startSession() {
     setState(() => _inSession = true);
@@ -42,6 +43,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Load saved preference (non-blocking; keep UI responsive)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final prefs = Provider.of<PrefsService>(context, listen: false);
+      final saved = prefs.pauseDurationSeconds;
+      if (saved != _selectedDurationSeconds) setState(() => _selectedDurationSeconds = saved);
+    });
     return Scaffold(
       appBar: AppBar(
         title: const Text('ZenBreak'),
@@ -62,13 +69,108 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Center(
         child: _inSession
-            ? BreathingSession(durationSeconds: 120, onFinished: _endSession)
-            : ElevatedButton(
-                onPressed: _startSession,
-                style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(40)),
-                child: const Text('Iniciar pausa', textAlign: TextAlign.center),
+            ? BreathingSession(durationSeconds: _selectedDurationSeconds, onFinished: _endSession)
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Mostrar duração selecionada e permitir edição
+                  GestureDetector(
+                    onTap: _pickDuration,
+                    child: Column(
+                      children: [
+                        Text('Duração da pausa', style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 8),
+                        Text(_formatSecondsToMmSs(_selectedDurationSeconds), style: Theme.of(context).textTheme.headlineMedium),
+                        const SizedBox(height: 12),
+                        const Text('Toque para ajustar', style: TextStyle(fontSize: 12, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Persist selected duration and start
+                      final prefs = Provider.of<PrefsService>(context, listen: false);
+                      prefs.setPauseDurationSeconds(_selectedDurationSeconds);
+                      _startSession();
+                    },
+                    style: ElevatedButton.styleFrom(shape: const CircleBorder(), padding: const EdgeInsets.all(40)),
+                    child: const Text('Iniciar pausa', textAlign: TextAlign.center),
+                  ),
+                ],
               ),
       ),
     );
+  }
+
+  Future<void> _pickDuration() async {
+    final result = await showDialog<int>(context: context, builder: (c) {
+      final minController = TextEditingController(text: (_selectedDurationSeconds ~/ 60).toString());
+      final secController = TextEditingController(text: (_selectedDurationSeconds % 60).toString());
+      final formKey = GlobalKey<FormState>();
+      return AlertDialog(
+        title: const Text('Ajustar duração (MM:SS)'),
+        content: Form(
+          key: formKey,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: minController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Minutos', hintText: '0-60'),
+                  validator: (v) {
+                    final n = int.tryParse(v ?? '');
+                    if (n == null) return 'Inválido';
+                    if (n < 0 || n > 60) return '0-60';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: secController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Segundos', hintText: '0-59'),
+                  validator: (v) {
+                    final n = int.tryParse(v ?? '');
+                    if (n == null) return 'Inválido';
+                    if (n < 0 || n > 59) return '0-59';
+                    return null;
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancelar')),
+          TextButton(
+              onPressed: () {
+                if (!formKey.currentState!.validate()) return;
+                final m = int.tryParse(minController.text) ?? 0;
+                final s = int.tryParse(secController.text) ?? 0;
+                final total = m * 60 + s;
+                if (total <= 0) return;
+                if (total > 3600) {
+                  // limite 60:00
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Máximo permitido: 60:00')));
+                  return;
+                }
+                Navigator.pop(c, total);
+              },
+              child: const Text('OK'))
+        ],
+      );
+    });
+
+    if (result != null) setState(() => _selectedDurationSeconds = result);
+  }
+
+  String _formatSecondsToMmSs(int total) {
+    final minutes = (total ~/ 60).clamp(0, 60);
+    final seconds = (total % 60).clamp(0, 59);
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 }

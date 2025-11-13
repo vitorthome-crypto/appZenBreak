@@ -33,6 +33,10 @@ class PrefsService {
 
   Future<void> clearAll() => _prefs.clear();
 
+  // Pause duration preference (in seconds). Default 120 seconds.
+  int get pauseDurationSeconds => _prefs.getInt('pause_duration_seconds') ?? 120;
+  Future<void> setPauseDurationSeconds(int v) => _prefs.setInt('pause_duration_seconds', v);
+
   // Convenience checks
   bool isAccepted(String version) => policiesVersionAccepted == version;
   bool isDemoDone() => demoCompleted;
