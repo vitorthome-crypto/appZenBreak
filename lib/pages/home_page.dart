@@ -69,7 +69,8 @@ class _HomePageState extends State<HomePage> {
     // prefs are loaded once in initState
     final calmColor = const Color(0xFFBEEAF6); // baby blue calm
 
-    final bgHex = Provider.of<PrefsService>(context, listen: false).backgroundColorHex;
+    final prefs = Provider.of<PrefsService>(context); // listen: true por padrão
+    final bgHex = prefs.backgroundColorHex;
     final bgColor = _colorFromHex(bgHex) ?? Colors.white;
 
     return Scaffold(

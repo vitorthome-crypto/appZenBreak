@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
       seedColor: const Color(0xFF06B6D4), // Cyan 500 from PRD
     );
 
-    return Provider<PrefsService>.value(
+    return ChangeNotifierProvider<PrefsService>.value(
       value: prefs!,
       child: MaterialApp(
         title: 'ZenBreak',

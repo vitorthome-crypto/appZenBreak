@@ -1,6 +1,7 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 
-class PrefsService {
+class PrefsService extends ChangeNotifier {
   final SharedPreferences _prefs;
 
   PrefsService._(this._prefs);
@@ -35,7 +36,10 @@ class PrefsService {
 
   // Pause duration preference (in seconds). Default 120 seconds.
   int get pauseDurationSeconds => _prefs.getInt('pause_duration_seconds') ?? 120;
-  Future<void> setPauseDurationSeconds(int v) => _prefs.setInt('pause_duration_seconds', v);
+  Future<void> setPauseDurationSeconds(int v) async {
+    await _prefs.setInt('pause_duration_seconds', v);
+    notifyListeners();
+  }
 
   // Background color (stored as hex string, e.g. #FFFFFF). Null = default.
   String? get backgroundColorHex => _prefs.getString('background_color_hex');
@@ -45,6 +49,7 @@ class PrefsService {
     } else {
       await _prefs.setString('background_color_hex', v);
     }
+    notifyListeners();
   }
 
   // Convenience checks
