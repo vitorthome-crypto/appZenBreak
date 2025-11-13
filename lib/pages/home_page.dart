@@ -230,61 +230,71 @@ class _HomePageState extends State<HomePage> {
     final initialColor = _colorFromHex(current) ?? Colors.white;
     Color selectedColor = initialColor;
 
-    final result = await showDialog<Color?>(context: context, builder: (c) => AlertDialog(
-      title: const Text('Escolher cor de fundo'),
-      content: SizedBox(
-        width: 300,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Color wheel picker
-              ColorPickerWheel(
-                initialColor: initialColor,
-                onColorChanged: (color) {
-                  selectedColor = color;
-                },
-              ),
-              const SizedBox(height: 16),
-              // Quick presets
-              const Text('Presets:', style: TextStyle(fontWeight: FontWeight.bold)),
-              Wrap(
-                spacing: 8,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFBEEAF6)),
-                    onPressed: () {
-                      selectedColor = const Color(0xFFBEEAF6);
-                    },
-                    child: const Text('Azul claro'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDFF7E0)),
-                    onPressed: () {
-                      selectedColor = const Color(0xFFDFF7E0);
-                    },
-                    child: const Text('Verde claro'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
-                    onPressed: () {
-                      selectedColor = Colors.white;
-                    },
-                    child: const Text('Branco'),
-                  ),
-                ],
-              ),
-            ],
+    final result = await showDialog<Color?>(context: context, builder: (c) => StatefulBuilder(
+      builder: (context, setState) => AlertDialog(
+        title: const Text('Escolher cor de fundo'),
+        content: SizedBox(
+          width: 300,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Color wheel picker
+                ColorPickerWheel(
+                  initialColor: selectedColor,
+                  onColorChanged: (color) {
+                    setState(() {
+                      selectedColor = color;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                // Quick presets
+                const Text('Presets:', style: TextStyle(fontWeight: FontWeight.bold)),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFBEEAF6)),
+                      onPressed: () {
+                        setState(() {
+                          selectedColor = const Color(0xFFBEEAF6);
+                        });
+                      },
+                      child: const Text('Azul claro'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFDFF7E0)),
+                      onPressed: () {
+                        setState(() {
+                          selectedColor = const Color(0xFFDFF7E0);
+                        });
+                      },
+                      child: const Text('Verde claro'),
+                    ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.white),
+                      onPressed: () {
+                        setState(() {
+                          selectedColor = Colors.white;
+                        });
+                      },
+                      child: const Text('Branco'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(c, selectedColor),
+            child: const Text('OK'),
+          ),
+        ],
       ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(c), child: const Text('Cancelar')),
-        TextButton(
-          onPressed: () => Navigator.pop(c, selectedColor),
-          child: const Text('OK'),
-        ),
-      ],
     ));
 
     if (result != null) {

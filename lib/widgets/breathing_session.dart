@@ -4,8 +4,9 @@ class BreathingSession extends StatefulWidget {
   final int durationSeconds;
   final VoidCallback? onFinished;
   final VoidCallback? onCancel;
+  final bool showCancelButton;
 
-  const BreathingSession({super.key, this.durationSeconds = 120, this.onFinished, this.onCancel});
+  const BreathingSession({super.key, this.durationSeconds = 120, this.onFinished, this.onCancel, this.showCancelButton = true});
 
   @override
   State<BreathingSession> createState() => _BreathingSessionState();
@@ -89,7 +90,7 @@ class _BreathingSessionState extends State<BreathingSession> with TickerProvider
                   Text(timeStr, style: Theme.of(context).textTheme.headlineSmall),
                   const SizedBox(height: 12),
                   // Mostrar botão de cancelar enquanto a sessão estiver rodando
-                  if (_progressCtrl.isAnimating)
+                  if (_progressCtrl.isAnimating && widget.showCancelButton)
                     OutlinedButton(
                       style: OutlinedButton.styleFrom(side: const BorderSide(color: Colors.black)),
                       onPressed: () {

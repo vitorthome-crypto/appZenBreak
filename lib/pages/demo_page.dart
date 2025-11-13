@@ -27,7 +27,7 @@ class _DemoPageState extends State<DemoPage> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Expanded(child: BreathingSession(durationSeconds: 10, onFinished: _onFinish)),
+            Expanded(child: BreathingSession(durationSeconds: 10, onFinished: _onFinish, showCancelButton: false)),
             const SizedBox(height: 12),
             if (_finished)
               ElevatedButton(
