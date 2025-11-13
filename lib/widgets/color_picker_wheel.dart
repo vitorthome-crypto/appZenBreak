@@ -92,9 +92,10 @@ class _ColorPickerWheelState extends State<ColorPickerWheel> {
         const SizedBox(height: 12),
         Builder(builder: (context) {
           final color = _hsv.toColor();
-          final r = (color.red * 255).toInt().toRadixString(16).padLeft(2, '0');
-          final g = (color.green * 255).toInt().toRadixString(16).padLeft(2, '0');
-          final b = (color.blue * 255).toInt().toRadixString(16).padLeft(2, '0');
+          // color.red/green/blue already are 0..255 ints
+          final r = color.red.toRadixString(16).padLeft(2, '0');
+          final g = color.green.toRadixString(16).padLeft(2, '0');
+          final b = color.blue.toRadixString(16).padLeft(2, '0');
           return Text(
             '#${(r + g + b).toUpperCase()}',
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
