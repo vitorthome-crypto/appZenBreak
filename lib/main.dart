@@ -7,6 +7,7 @@ import 'pages/demo_page.dart';
 import 'pages/policy_viewer_page.dart';
 import 'pages/reminder_page.dart';
 import 'pages/home_page.dart';
+import 'features/providers/presentation/pages/fornecedores_page.dart';
 //comentario
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
           '/policy-viewer': (_) => const PolicyViewerPage(),
           '/reminder': (_) => const ReminderPage(),
           '/home': (_) => const HomePage(),
+          '/fornecedores': (_) => const FornecedoresPage(),
         },
       ),
     );

@@ -49,6 +49,9 @@ class _HomePageState extends State<HomePage> {
       final saved = prefs.pauseDurationSeconds;
       if (saved != _selectedDurationSeconds) setState(() => _selectedDurationSeconds = saved);
     });
+    final prefs = Provider.of<PrefsService>(context);
+    final showMenu = prefs.policiesVersionAccepted != null && (prefs.policiesVersionAccepted?.isNotEmpty ?? false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('ZenBreak'),
@@ -67,6 +70,37 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
+      drawer: showMenu
+          ? Drawer(
+              child: SafeArea(
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    const DrawerHeader(
+                      decoration: BoxDecoration(color: Colors.blue),
+                      child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 18)),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.table_chart),
+                      title: const Text('Fornecedores (Tabela)'),
+                      onTap: () {
+                        Navigator.pop(context); // fecha o drawer
+                        Navigator.pushNamed(context, '/fornecedores');
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.policy),
+                      title: const Text('Políticas'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/policy-viewer');
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : null,
       body: Center(
         child: _inSession
             ? BreathingSession(durationSeconds: _selectedDurationSeconds, onFinished: _endSession)
