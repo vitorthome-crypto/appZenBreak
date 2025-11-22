@@ -12,6 +12,7 @@ dependencies:
   flutter_markdown: ^0.6.10
   dots_indicator: ^2.0.0
   supabase_flutter: ^1.4.0
+  flutter_dotenv: ^5.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
