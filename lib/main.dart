@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/prefs_service.dart';
+import 'services/supabase_service.dart';
 import 'pages/splash_page.dart';
 import 'pages/demo_page.dart';
 import 'pages/policy_viewer_page.dart';
@@ -9,6 +10,9 @@ import 'pages/home_page.dart';
 //comentario
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Inicializa Supabase
+  await SupabaseService.initialize();
+
   final prefs = await PrefsService.getInstance();
   runApp(MyApp(prefs: prefs));
 }
