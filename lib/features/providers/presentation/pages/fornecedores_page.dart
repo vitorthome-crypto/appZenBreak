@@ -4,6 +4,7 @@ import '../../data/datasources/providers_local_data_source_impl.dart';
 import '../../data/repositories/providers_repository_impl.dart';
 import '../controllers/fornecedores_controller.dart';
 import '../widgets/fornecedor_list_item.dart';
+import '../dialogs/provider_details_dialog.dart';
 
 class FornecedoresPage extends StatefulWidget {
   const FornecedoresPage({Key? key}) : super(key: key);
@@ -42,6 +43,34 @@ class _FornecedoresPageState extends State<FornecedoresPage> {
 
   void _onSearchChanged() {
     _controller.setSearchQuery(_searchController.text);
+  }
+
+  void _showProviderDetailsDialog(BuildContext context, dynamic provider) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => ProviderDetailsDialog(
+        provider: provider,
+        onEdit: () {
+          // TODO: Implementar edição do fornecedor
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Editar ${provider.name} (não implementado)'),
+            ),
+          );
+        },
+        onDelete: () async {
+          // Remover fornecedor
+          await _controller.deleteProvider(provider.id);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${provider.name} removido com sucesso'),
+              ),
+            );
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -206,12 +235,7 @@ class _FornecedoresPageState extends State<FornecedoresPage> {
                                 return FornecedorListItem(
                                   fornecedor: provider,
                                   onTap: () {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            'Selecionado: ${provider.name}'),
-                                      ),
-                                    );
+                                    _showProviderDetailsDialog(context, provider);
                                   },
                                   onDelete: () async {
                                     await _controller
