@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../services/prefs_service.dart';
 
 class SplashPage extends StatefulWidget {
+  const SplashPage({super.key});
+
   @override
   State<SplashPage> createState() => _SplashPageState();
 }

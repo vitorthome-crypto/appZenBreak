@@ -8,13 +8,22 @@ import 'pages/policy_viewer_page.dart';
 import 'pages/reminder_page.dart';
 import 'pages/home_page.dart';
 import 'features/providers/presentation/pages/fornecedores_page.dart';
+import 'features/reminders/presentation/pages/reminders_page.dart';
 //comentario
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  debugPrint('[MAIN] Iniciando aplicação...');
+  
   // Inicializa Supabase
-  await SupabaseService.initialize();
+  try {
+    await SupabaseService.initialize();
+    debugPrint('[MAIN] Supabase inicializado com sucesso');
+  } catch (e) {
+    debugPrint('[MAIN] Erro ao inicializar Supabase: $e');
+  }
 
   final prefs = await PrefsService.getInstance();
+  debugPrint('[MAIN] PrefsService inicializado com sucesso');
   runApp(MyApp(prefs: prefs));
 }
 
@@ -47,12 +56,13 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: {
-          '/': (_) => SplashPage(),
+          '/': (_) => const SplashPage(),
           '/demo': (_) => const DemoPage(),
           '/policy-viewer': (_) => const PolicyViewerPage(),
           '/reminder': (_) => const ReminderPage(),
           '/home': (_) => const HomePage(),
           '/fornecedores': (_) => const FornecedoresPage(),
+          '/reminders': (_) => const RemindersPage(),
         },
       ),
     );

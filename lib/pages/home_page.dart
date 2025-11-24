@@ -89,6 +89,14 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                     ListTile(
+                      leading: const Icon(Icons.alarm),
+                      title: const Text('Lembretes'),
+                      onTap: () {
+                        Navigator.pop(context); // fecha o drawer
+                        Navigator.pushNamed(context, '/reminders');
+                      },
+                    ),
+                    ListTile(
                       leading: const Icon(Icons.policy),
                       title: const Text('Políticas'),
                       onTap: () {
