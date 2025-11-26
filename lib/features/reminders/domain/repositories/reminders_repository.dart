@@ -1,7 +1,7 @@
 import '../entities/reminder.dart';
 
 /// Contrato de repositório para operações com lembretes
-/// Define as operações disponíveis (CRUD)
+/// Define as operações disponíveis (CRUD + sincronização)
 abstract class RemindersRepository {
   /// Carrega todos os lembretes
   Future<List<Reminder>> getAll();
@@ -40,4 +40,8 @@ abstract class RemindersRepository {
 
   /// Obtém lembretes próximos (próxima 1 hora)
   Future<List<Reminder>> getComingSoon();
+
+  /// Sincroniza lembretes locais com remoto
+  /// Estratégia: Upload de mudanças, download de atualizações
+  Future<void> syncWithRemote(List<Reminder> localReminders);
 }

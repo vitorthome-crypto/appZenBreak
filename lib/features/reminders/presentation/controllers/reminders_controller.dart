@@ -43,7 +43,7 @@ class RemindersController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  /// Carrega todos os lembretes
+  /// Carrega todos os lembretes e sincroniza com remoto
   Future<void> loadReminders() async {
     _isLoading = true;
     _error = null;
@@ -52,6 +52,9 @@ class RemindersController extends ChangeNotifier {
     try {
       _reminders = await _getAllReminders();
       _applyFilters();
+
+      // Sincronização em background (não-bloqueante)
+      _syncRemindersInBackground();
     } catch (e) {
       _error = 'Erro ao carregar lembretes: $e';
       _reminders = [];
@@ -60,6 +63,15 @@ class RemindersController extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  /// Sincroniza lembretes locais com remoto em background
+  void _syncRemindersInBackground() {
+    // Fire-and-forget para não bloquear UI
+    repository.syncWithRemote(_reminders).catchError((e) {
+      print('⚠️ Erro ao sincronizar em background: $e');
+      // Não atualiza UI - sincronização é operação melhorada
+    });
   }
 
   /// Define a query de busca

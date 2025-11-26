@@ -18,7 +18,7 @@ build/
 .buildlog/
 .history
 
-
+.env
 
 # Flutter repo-specific
 /bin/cache/

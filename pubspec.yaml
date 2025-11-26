@@ -21,3 +21,4 @@ flutter:
   assets:
     - assets/policies/privacy_v1.md
     - assets/policies/terms_v1.md
+    - .env

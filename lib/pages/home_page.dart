@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/prefs_service.dart';
 import '../widgets/breathing_session.dart';
+import '../features/auth/presentation/controllers/auth_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -41,6 +42,25 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushReplacementNamed(context, '/');
   }
 
+  Future<void> _fazerLogout() async {
+    final confirmed = await showDialog<bool>(context: context, builder: (c) => AlertDialog(
+          title: const Text('Fazer logout'),
+          content: const Text('Tem certeza que deseja sair?'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancelar')),
+            TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Sair')),
+          ],
+        ));
+    if (confirmed != true) return;
+
+    final authController = Provider.of<AuthController>(context, listen: false);
+    await authController.logout();
+    
+    if (mounted) {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Load saved preference (non-blocking; keep UI responsive)
@@ -60,12 +80,12 @@ class _HomePageState extends State<HomePage> {
             onSelected: (v) async {
               if (v == 'revoke') await _revoke();
               if (v == 'policies') Navigator.pushNamed(context, '/policy-viewer');
-              if (v == 'reminder') Navigator.pushNamed(context, '/reminder');
+              if (v == 'logout') await _fazerLogout();
             },
             itemBuilder: (c) => [
-              const PopupMenuItem(value: 'reminder', child: Text('Ajustar lembrete')),
               const PopupMenuItem(value: 'policies', child: Text('Ver políticas')),
               const PopupMenuItem(value: 'revoke', child: Text('Revogar aceite')),
+              const PopupMenuItem(value: 'logout', child: Text('Sair')),
             ],
           )
         ],
@@ -80,20 +100,13 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(color: Colors.blue),
                       child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 18)),
                     ),
+                    // Fornecedores e Lembretes removidos do menu conforme solicitado
                     ListTile(
-                      leading: const Icon(Icons.table_chart),
-                      title: const Text('Fornecedores (Tabela)'),
+                      leading: const Icon(Icons.history),
+                      title: const Text('Histórico'),
                       onTap: () {
-                        Navigator.pop(context); // fecha o drawer
-                        Navigator.pushNamed(context, '/fornecedores');
-                      },
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.alarm),
-                      title: const Text('Lembretes'),
-                      onTap: () {
-                        Navigator.pop(context); // fecha o drawer
-                        Navigator.pushNamed(context, '/reminders');
+                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/historico');
                       },
                     ),
                     ListTile(
