@@ -8,12 +8,14 @@ class BreathingSessionWithHistory extends StatefulWidget {
   final int durationSeconds;
   final int? meditacaoId;
   final VoidCallback? onFinished;
+  final ValueChanged<int>? onTick;
 
   const BreathingSessionWithHistory({
     super.key,
     this.durationSeconds = 120,
     this.meditacaoId,
     this.onFinished,
+    this.onTick,
   });
 
   @override
@@ -62,6 +64,7 @@ class _BreathingSessionWithHistoryState
     return BreathingSession(
       durationSeconds: widget.durationSeconds,
       onFinished: _onSessionFinished,
+      onTick: widget.onTick,
     );
   }
 }

@@ -9,15 +9,17 @@ class HistoricoRepositoryImpl implements HistoricoRepository {
 
   @override
   Future<void> salvarSessao({
-    required String userId,
+    String? userId,
     required int duracao_segundos,
     int? meditacao_id,
+    bool parcial = false,
   }) async {
     try {
       await remoteDataSource.salvarSessao(
         userId: userId,
         duracao_segundos: duracao_segundos,
         meditacao_id: meditacao_id,
+        parcial: parcial,
       );
     } catch (e) {
       rethrow;
@@ -25,7 +27,7 @@ class HistoricoRepositoryImpl implements HistoricoRepository {
   }
 
   @override
-  Future<Map<String, int>> buscarEstatisticas({required String userId}) async {
+  Future<Map<String, int>> buscarEstatisticas({String? userId}) async {
     try {
       return await remoteDataSource.buscarEstatisticas(userId: userId);
     } catch (e) {
@@ -34,7 +36,7 @@ class HistoricoRepositoryImpl implements HistoricoRepository {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> obterTodas({required String userId}) async {
+  Future<List<Map<String, dynamic>>> obterTodas({String? userId}) async {
     try {
       return await remoteDataSource.obterTodas(userId: userId);
     } catch (e) {

@@ -175,14 +175,14 @@ class _HistoricoPageState extends State<HistoricoPage> {
                   leading: const Icon(Icons.check_circle,
                       color: Colors.green, size: 28),
                   title: Text(
-                    '$minutos minuto${minutos != 1 ? 's' : ''}',
+                    '$minutos minuto${minutos != 1 ? 's' : ''}${(sessao['parcial'] as bool? ?? false) ? ' (parcial)' : ''}',
                     style: Theme.of(context)
                         .textTheme
                         .bodyLarge
                         ?.copyWith(fontWeight: FontWeight.w600),
                   ),
                   subtitle: Text(
-                    _formatarData(data),
+                    '${_formatarData(data)}${(sessao['parcial'] as bool? ?? false) ? ' • Parcial' : ''}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   trailing: Text(

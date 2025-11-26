@@ -10,17 +10,20 @@ class HistoricoRemoteDataSourceImpl implements HistoricoRemoteDataSource {
 
   @override
   Future<void> salvarSessao({
-    required String userId,
+    String? userId,
     required int duracao_segundos,
     int? meditacao_id,
+    bool parcial = false,
   }) async {
     try {
-      await client.from('historico_usuario').insert({
-        'user_id': userId,
+      final data = {
+        if (userId != null) 'user_id': userId,
         'duracao_segundos': duracao_segundos,
-        'meditacao_id': meditacao_id,
-        // 'data_sessao' e 'updated_at' são preenchidos automaticamente pelo Supabase
-      });
+        'parcial': parcial,
+        if (meditacao_id != null) 'meditacao_id': meditacao_id,
+      };
+
+      await client.from('historico_usuario').insert(data);
       debugPrint('[HistoricoRemoteDataSource] Sessão salva com sucesso!');
     } catch (e) {
       debugPrint('[HistoricoRemoteDataSource] Erro ao salvar sessão: $e');
@@ -29,12 +32,12 @@ class HistoricoRemoteDataSourceImpl implements HistoricoRemoteDataSource {
   }
 
   @override
-  Future<Map<String, int>> buscarEstatisticas({required String userId}) async {
+  Future<Map<String, int>> buscarEstatisticas({String? userId}) async {
     try {
-      final response = await client
-          .from('historico_usuario')
-          .select('duracao_segundos')
-          .eq('user_id', userId);
+        final query = client.from('historico_usuario').select('duracao_segundos');
+        final response = userId != null
+          ? await query.eq('user_id', userId)
+          : await query;
 
       final lista = List<Map<String, dynamic>>.from(response);
 
@@ -64,13 +67,12 @@ class HistoricoRemoteDataSourceImpl implements HistoricoRemoteDataSource {
   }
 
   @override
-  Future<List<Map<String, dynamic>>> obterTodas({required String userId}) async {
+  Future<List<Map<String, dynamic>>> obterTodas({String? userId}) async {
     try {
-      final response = await client
-          .from('historico_usuario')
-          .select()
-          .eq('user_id', userId)
-          .order('data_sessao', ascending: false);
+        final table = client.from('historico_usuario').select();
+        final response = userId != null
+          ? await table.eq('user_id', userId).order('data_sessao', ascending: false)
+          : await table.order('data_sessao', ascending: false);
 
       debugPrint(
           '[HistoricoRemoteDataSource] Total de sessões obtidas: ${response.length}');

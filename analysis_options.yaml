@@ -7,7 +7,11 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
+# include: package:flutter_lints/flutter.yaml
+# NOTE: commented out to avoid analyzer errors when the dependency
+# `flutter_lints` is not available in the environment. If you use
+# `flutter_lints`, uncomment this line and add the package to
+# `dev_dependencies` in `pubspec.yaml`.
 
 linter:
   # The lint rules applied to this project can be customized in the

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/prefs_service.dart';
-import '../features/auth/presentation/controllers/auth_controller.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -19,15 +18,6 @@ class _SplashPageState extends State<SplashPage> {
 
   Future<void> _decideRoute() async {
     await Future.delayed(const Duration(milliseconds: 800));
-    
-    final authController = Provider.of<AuthController>(context, listen: false);
-    
-    // Se não está autenticado, vai para login
-    if (!authController.isAutenticado) {
-      Navigator.pushReplacementNamed(context, '/login');
-      return;
-    }
-
     final prefs = Provider.of<PrefsService>(context, listen: false);
     if (!prefs.isDemoDone()) {
       Navigator.pushReplacementNamed(context, '/demo');

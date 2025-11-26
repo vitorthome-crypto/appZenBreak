@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/repositories/historico_repository.dart';
 
 /// Model para armazenar estatísticas de meditação.
@@ -38,25 +37,21 @@ class HistoricoController extends ChangeNotifier {
   Future<void> salvarSessao({
     required int duracao_segundos,
     int? meditacao_id,
+    bool parcial = false,
   }) async {
     try {
       _erro = null;
-      final user = Supabase.instance.client.auth.currentUser;
-
-      if (user == null) {
-        _erro = 'Usuário não autenticado';
-        notifyListeners();
-        return;
-      }
-
+      // Salvar sem exigir autenticação; userId opcional
       await repository.salvarSessao(
-        userId: user.id,
+        userId: null,
         duracao_segundos: duracao_segundos,
         meditacao_id: meditacao_id,
+        parcial: parcial,
       );
 
-      // Após salvar, atualiza as estatísticas
+      // Após salvar, atualiza as estatísticas e recarrega lista de sessões
       await carregarEstatisticas();
+      await carregarSessoes();
       debugPrint('[HistoricoController] Sessão salva com sucesso!');
     } catch (e) {
       _erro = 'Erro ao salvar sessão: $e';
@@ -72,16 +67,8 @@ class HistoricoController extends ChangeNotifier {
       _erro = null;
       notifyListeners();
 
-      final user = Supabase.instance.client.auth.currentUser;
-
-      if (user == null) {
-        _erro = 'Usuário não autenticado';
-        _carregando = false;
-        notifyListeners();
-        return;
-      }
-
-      final dados = await repository.buscarEstatisticas(userId: user.id);
+      // Buscar estatísticas sem exigir autenticação (global)
+      final dados = await repository.buscarEstatisticas(userId: null);
 
       _estatisticas = EstatisticasMeditacao(
         totalVezes: dados['vezes'] ?? 0,
@@ -106,16 +93,8 @@ class HistoricoController extends ChangeNotifier {
       _erro = null;
       notifyListeners();
 
-      final user = Supabase.instance.client.auth.currentUser;
-
-      if (user == null) {
-        _erro = 'Usuário não autenticado';
-        _carregando = false;
-        notifyListeners();
-        return;
-      }
-
-      _sessoes = await repository.obterTodas(userId: user.id);
+      // Carrega todas as sessões sem exigir autenticação
+      _sessoes = await repository.obterTodas(userId: null);
 
       debugPrint(
           '[HistoricoController] ${_sessoes.length} sessões carregadas');

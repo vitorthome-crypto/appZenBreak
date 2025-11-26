@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/prefs_service.dart';
-import '../widgets/breathing_session.dart';
-import '../features/auth/presentation/controllers/auth_controller.dart';
+import '../widgets/breathing_session_with_history.dart';
+import '../features/historico/presentation/controllers/historico_controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _inSession = false;
   int _selectedDurationSeconds = 120;
+  int _lastRemainingSeconds = 0;
 
   void _startSession() {
     setState(() => _inSession = true);
@@ -42,33 +43,10 @@ class _HomePageState extends State<HomePage> {
     Navigator.pushReplacementNamed(context, '/');
   }
 
-  Future<void> _fazerLogout() async {
-    final confirmed = await showDialog<bool>(context: context, builder: (c) => AlertDialog(
-          title: const Text('Fazer logout'),
-          content: const Text('Tem certeza que deseja sair?'),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Cancelar')),
-            TextButton(onPressed: () => Navigator.pop(c, true), child: const Text('Sair')),
-          ],
-        ));
-    if (confirmed != true) return;
-
-    final authController = Provider.of<AuthController>(context, listen: false);
-    await authController.logout();
-    
-    if (mounted) {
-      Navigator.pushReplacementNamed(context, '/login');
-    }
-  }
+  // logout removed — app no longer requires authentication
 
   @override
   Widget build(BuildContext context) {
-    // Load saved preference (non-blocking; keep UI responsive)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final prefs = Provider.of<PrefsService>(context, listen: false);
-      final saved = prefs.pauseDurationSeconds;
-      if (saved != _selectedDurationSeconds) setState(() => _selectedDurationSeconds = saved);
-    });
     final prefs = Provider.of<PrefsService>(context);
     final showMenu = prefs.policiesVersionAccepted != null && (prefs.policiesVersionAccepted?.isNotEmpty ?? false);
 
@@ -80,12 +58,10 @@ class _HomePageState extends State<HomePage> {
             onSelected: (v) async {
               if (v == 'revoke') await _revoke();
               if (v == 'policies') Navigator.pushNamed(context, '/policy-viewer');
-              if (v == 'logout') await _fazerLogout();
             },
             itemBuilder: (c) => [
               const PopupMenuItem(value: 'policies', child: Text('Ver políticas')),
               const PopupMenuItem(value: 'revoke', child: Text('Revogar aceite')),
-              const PopupMenuItem(value: 'logout', child: Text('Sair')),
             ],
           )
         ],
@@ -124,7 +100,36 @@ class _HomePageState extends State<HomePage> {
           : null,
       body: Center(
         child: _inSession
-            ? BreathingSession(durationSeconds: _selectedDurationSeconds, onFinished: _endSession)
+            ? Stack(
+                  alignment: Alignment.center,
+                  children: [
+                      BreathingSessionWithHistory(
+                        durationSeconds: _selectedDurationSeconds,
+                        onFinished: _endSession,
+                        onTick: (remaining) => _lastRemainingSeconds = remaining),
+                  Positioned(
+                    bottom: 48,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        // Cancel session early and save partial session if any progress
+                        final elapsed = _selectedDurationSeconds - _lastRemainingSeconds;
+                        if (elapsed > 0) {
+                          try {
+                            final historico = Provider.of<HistoricoController>(context, listen: false);
+                            await historico.salvarSessao(duracao_segundos: elapsed, meditacao_id: null);
+                          } catch (_) {
+                            // ignore errors saving partial
+                          }
+                        }
+                        setState(() => _inSession = false);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Pausa cancelada')));
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: const Text('Cancelar'),
+                    ),
+                  ),
+                ],
+              )
             : Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -156,6 +161,17 @@ class _HomePageState extends State<HomePage> {
               ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Carregar preferências uma única vez no início
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final prefs = Provider.of<PrefsService>(context, listen: false);
+      final saved = prefs.pauseDurationSeconds;
+      if (saved != _selectedDurationSeconds) setState(() => _selectedDurationSeconds = saved);
+    });
   }
 
   Future<void> _pickDuration() async {
