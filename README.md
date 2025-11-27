@@ -5,7 +5,8 @@ App de meditação e respiração construído com Flutter seguindo **Clean Archi
 ## Funcionalidades Implementadas
 
 ### Core
-- ✅ Splash com decisão de rota (demo/policy/home)
+- ✅ **Tela de Onboarding** - Boas-vindas com descrição do app e 3 features principais
+- ✅ Splash com decisão de rota (onboarding/demo/policy/home)
 - ✅ Sessão de respiração com animação de pulsação + timer MM:SS
 - ✅ Seleção de duração customizada (MM:SS)
 - ✅ Picker de cores para tema personalizado (8 cores presets)
@@ -13,6 +14,7 @@ App de meditação e respiração construído com Flutter seguindo **Clean Archi
 - ✅ Agendamento de lembretes (persistido em SharedPreferences)
 - ✅ Menu settings e visualização de políticas na home
 - ✅ PrefsService com reatividade (ChangeNotifier)
+- ✅ Histórico de sessões (com suporte a sessões parciais) salvo em Supabase
 
 ### Providers (Fornecedores)
 - ✅ Listagem de fornecedores com paginação (20 por página)
@@ -64,11 +66,13 @@ lib/
 │               └── mock_data.dart
 │
 ├── pages/
+│   ├── onboarding_page.dart          # 🆕 Boas-vindas e apresentação do app
 │   ├── home_page.dart
 │   ├── demo_page.dart
 │   ├── splash_page.dart
 │   ├── policy_viewer_page.dart
-│   └── reminder_page.dart
+│   ├── historico_page.dart           # Histórico de sessões
+│   └── meditation_history_demo_page.dart
 │
 ├── widgets/
 │   ├── breathing_session.dart        # Animação pulsação + timer
@@ -81,6 +85,27 @@ lib/
 ```
 
 ### Fluxo de Dados
+
+#### 🎯 Fluxo de Rota (Primeiro Acesso)
+
+```
+SplashPage (Verificação de preferências)
+    ↓
+├─ Se onboarding_done == false → OnboardingPage
+│   (Descrição do app, 3 features, botão "Começar")
+│   ↓ setOnboardingDone()
+│
+├─ Se demo_completed == false → DemoPage
+│   (Demonstração interativa da sessão)
+│   ↓ setDemoCompleted()
+│
+├─ Se policies_accepted != 'v1' → PolicyViewerPage
+│   (Termos e Privacidade com scroll obrigatório)
+│   ↓ setPoliciesVersionAccepted('v1')
+│
+└─ Caso contrário → HomePage
+   (Sessão de respiração + menu)
+```
 
 #### 📥 Leitura (Carregamento de Fornecedores)
 
@@ -167,10 +192,30 @@ flutter run --release
 
 - **Framework**: Flutter + Dart
 - **State Management**: Provider (ChangeNotifier)
-- **Persistência**: SharedPreferences
+- **Backend**: Supabase (PostgreSQL + RLS)
+- **Persistência Local**: SharedPreferences
+- **Persistência Remota**: Supabase (Base de Dados PostgreSQL)
 - **Arquitetura**: Clean Architecture (Domain/Data/Presentation)
 - **UI**: Material Design 3
 - **Temas**: Cores customizáveis (8 presets)
+
+## Supabase Setup
+
+O projeto utiliza Supabase para persistência remota de sessões de meditação.
+
+### Configuração Necessária
+
+1. **Criar projeto Supabase** em [supabase.com](https://supabase.com)
+2. **Executar SQL migration** (consulte `docs/supabase_schema.sql` para schema inicial)
+3. **Configurar RLS Policies** (consultado em `docs/MIGRACAO_PARCIAL_SESSAO.sql` para acesso público opcional)
+
+### Variáveis de Ambiente
+
+Criar `.env` com:
+```env
+SUPABASE_URL=https://seu-projeto.supabase.co
+SUPABASE_ANON_KEY=sua-chave-anonima
+```
 
 ## Estrutura de Branches Git
 
@@ -198,8 +243,10 @@ flutter_local_notifications: ^12.0.4  # Notificações locais
 
 ## Documentação
 
-- 📖 **[ARCHITECTURE.md](./ARCHITECTURE.md)** - Documentação detalhada de Clean Architecture
+- 📖 **[docs/CLEAN_ARCHITECTURE.md](./docs/CLEAN_ARCHITECTURE.md)** - Documentação detalhada de Clean Architecture (Domain/Data/Presentation)
 - 📋 **[ZenBreakPRD.md](./ZenBreakPRD.md)** - Product Requirements Document
+- 🗄️ **[docs/supabase_schema.sql](./docs/supabase_schema.sql)** - Schema do banco de dados PostgreSQL (Supabase)
+- ⚙️ **[docs/MIGRACAO_PARCIAL_SESSAO.sql](./docs/MIGRACAO_PARCIAL_SESSAO.sql)** - Migração SQL para suporte a sessões parciais
 
 ## Próximos Passos
 

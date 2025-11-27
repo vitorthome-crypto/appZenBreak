@@ -19,14 +19,26 @@ class _SplashPageState extends State<SplashPage> {
   Future<void> _decideRoute() async {
     await Future.delayed(const Duration(milliseconds: 800));
     final prefs = Provider.of<PrefsService>(context, listen: false);
+    
+    // 1. Se onboarding não foi feito, mostrar onboarding
+    if (!prefs.isOnboardingDone()) {
+      Navigator.pushReplacementNamed(context, '/onboarding');
+      return;
+    }
+    
+    // 2. Se demo não foi feita, mostrar demo
     if (!prefs.isDemoDone()) {
       Navigator.pushReplacementNamed(context, '/demo');
       return;
     }
+    
+    // 3. Se políticas não foram aceitas, mostrar policy viewer
     if (!prefs.isAccepted('v1')) {
       Navigator.pushReplacementNamed(context, '/policy-viewer');
       return;
     }
+    
+    // 4. Caso contrário, ir para home
     Navigator.pushReplacementNamed(context, '/home');
   }
 

@@ -10,6 +10,9 @@ class PrefsService {
     return PrefsService._(prefs);
   }
 
+  bool get onboardingDone => _prefs.getBool('onboarding_done') ?? false;
+  Future<void> setOnboardingDone() => _prefs.setBool('onboarding_done', true);
+
   bool get demoCompleted => _prefs.getBool('demo_completed') ?? false;
   Future<void> setDemoCompleted(bool v) => _prefs.setBool('demo_completed', v);
 
@@ -40,4 +43,5 @@ class PrefsService {
   // Convenience checks
   bool isAccepted(String version) => policiesVersionAccepted == version;
   bool isDemoDone() => demoCompleted;
+  bool isOnboardingDone() => onboardingDone;
 }

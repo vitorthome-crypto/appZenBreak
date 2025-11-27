@@ -77,6 +77,14 @@ class _HomePageState extends State<HomePage> {
                       child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 18)),
                     ),
                     // Fornecedores e Lembretes removidos do menu conforme solicitado
+                                        ListTile(
+                                          leading: const Icon(Icons.flag),
+                                          title: const Text('Metas'),
+                                          onTap: () {
+                                            Navigator.pop(context);
+                                            Navigator.pushNamed(context, '/metas');
+                                          },
+                                        ),
                     ListTile(
                       leading: const Icon(Icons.history),
                       title: const Text('Histórico'),

@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' show dotenv;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 import 'services/prefs_service.dart';
 import 'pages/splash_page.dart';
+import 'pages/onboarding_page.dart';
 import 'pages/demo_page.dart';
 import 'pages/policy_viewer_page.dart';
 import 'pages/home_page.dart';
 import 'features/historico/presentation/controllers/historico_controller.dart';
 import 'features/historico/data/datasources/historico_remote_data_source_impl.dart';
 import 'features/historico/data/repositories/historico_repository_impl.dart';
+import 'features/daily_goals/presentation/controllers/daily_goal_controller.dart';
+import 'features/daily_goals/data/datasources/daily_goal_local_data_source.dart';
+import 'features/daily_goals/data/repositories/daily_goal_repository_impl.dart';
+import 'features/daily_goals/presentation/pages/metas_page.dart';
 import 'pages/meditation_history_demo_page.dart';
 import 'pages/historico_page.dart';
 Future<void> main() async {
@@ -27,13 +33,21 @@ Future<void> main() async {
 
   final prefs = await PrefsService.getInstance();
   debugPrint('[MAIN] PrefsService inicializado com sucesso');
-  runApp(MyApp(prefs: prefs));
+
+  // Inicializar SharedPreferences e DailyGoalController para prover como ChangeNotifier
+  final sharedPrefs = await SharedPreferences.getInstance();
+  final localDataSource = DailyGoalLocalDataSourceImpl(prefs: sharedPrefs);
+  final dailyGoalRepository = DailyGoalRepositoryImpl(localDataSource: localDataSource);
+  final dailyGoalController = DailyGoalController(repository: dailyGoalRepository);
+
+  runApp(MyApp(prefs: prefs, dailyGoalController: dailyGoalController));
 }
 
 class MyApp extends StatelessWidget {
   final PrefsService? prefs;
+  final DailyGoalController? dailyGoalController;
 
-  const MyApp({super.key, this.prefs});
+  const MyApp({super.key, this.prefs, this.dailyGoalController});
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +77,11 @@ class MyApp extends StatelessWidget {
             return HistoricoController(repository: repository);
           },
         ),
+        // Fornecer o DailyGoalController já instanciado para que as telas
+        // escutem `notifyListeners()` e atualizem imediatamente.
+        ChangeNotifierProvider<DailyGoalController>.value(
+          value: dailyGoalController!,
+        ),
       ],
       child: MaterialApp(
         title: 'ZenBreak',
@@ -77,9 +96,11 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/': (_) => const SplashPage(),
+          '/onboarding': (_) => const OnboardingPage(),
           '/demo': (_) => const DemoPage(),
           '/policy-viewer': (_) => const PolicyViewerPage(),
           '/home': (_) => const HomePage(),
+                     '/metas': (_) => const MetasPage(),
           '/historico': (_) => const HistoricoPage(),
           '/meditation-history-demo': (_) => const MeditationHistoryDemoPage(),
         },
