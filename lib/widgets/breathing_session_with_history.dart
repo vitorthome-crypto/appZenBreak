@@ -37,6 +37,7 @@ class _BreathingSessionWithHistoryState
   void _onSessionFinished() async {
     try {
       // Salva a sessão no histórico
+      // ATENÇÃO: Não passamos meditacao_id pois a coluna pode não existir ainda
       await _historicoController.salvarSessao(
         duracao_segundos: widget.durationSeconds,
         meditacao_id: widget.meditacaoId,
@@ -47,13 +48,20 @@ class _BreathingSessionWithHistoryState
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sessão de meditação registrada!')),
+          const SnackBar(
+            content: Text('Sessão de meditação registrada!'),
+            duration: Duration(seconds: 2),
+          ),
         );
       }
     } catch (e) {
+      debugPrint('[BreathingSessionWithHistory] Erro ao registrar sessão: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao registrar sessão: $e')),
+          SnackBar(
+            content: Text('Erro ao registrar sessão: $e'),
+            duration: const Duration(seconds: 3),
+          ),
         );
       }
     }

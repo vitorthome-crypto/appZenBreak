@@ -1,0 +1,3 @@
+# Flutter Configuration
+# Usa o Edge como navegador padrão ao invés do Chrome
+FLUTTER_WEB_DEVICE=edge

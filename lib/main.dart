@@ -21,15 +21,23 @@ import 'pages/historico_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('[MAIN] Warning: Could not load .env file - $e');
+  }
 
-  final supabaseUrl = dotenv.env['SUPABASE_URL']!;
-  final supabseKey = dotenv.env['SUPABASE_ANON_KEY']!;
+  final supabaseUrl = dotenv.env['SUPABASE_URL'] ?? 'https://your-project.supabase.co';
+  final supabseKey = dotenv.env['SUPABASE_ANON_KEY'] ?? 'your-anon-key-here';
 
-  await Supabase.initialize(
-    url: supabaseUrl,
-    anonKey: supabseKey,
-  );
+  try {
+    await Supabase.initialize(
+      url: supabaseUrl,
+      anonKey: supabseKey,
+    );
+  } catch (e) {
+    debugPrint('[MAIN] Warning: Could not initialize Supabase - $e');
+  }
 
   final prefs = await PrefsService.getInstance();
   debugPrint('[MAIN] PrefsService inicializado com sucesso');
