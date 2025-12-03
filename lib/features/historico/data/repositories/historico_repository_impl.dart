@@ -12,14 +12,12 @@ class HistoricoRepositoryImpl implements HistoricoRepository {
     String? userId,
     required int duracao_segundos,
     int? meditacao_id,
-    bool parcial = false,
   }) async {
     try {
       await remoteDataSource.salvarSessao(
         userId: userId,
         duracao_segundos: duracao_segundos,
         meditacao_id: meditacao_id,
-        parcial: parcial,
       );
     } catch (e) {
       rethrow;

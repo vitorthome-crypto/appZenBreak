@@ -5,7 +5,6 @@ abstract class HistoricoRepository {
     String? userId,
     required int duracao_segundos,
     int? meditacao_id,
-    bool parcial = false,
   });
 
   /// Busca estatísticas de meditação do usuário (vezes e minutos).

@@ -13,13 +13,11 @@ class HistoricoRemoteDataSourceImpl implements HistoricoRemoteDataSource {
     String? userId,
     required int duracao_segundos,
     int? meditacao_id,
-    bool parcial = false,
   }) async {
     try {
       final data = {
         if (userId != null) 'user_id': userId,
         'duracao_segundos': duracao_segundos,
-        'parcial': parcial,
         if (meditacao_id != null) 'meditacao_id': meditacao_id,
       };
 

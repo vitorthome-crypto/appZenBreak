@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/repositories/historico_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Model para armazenar estatísticas de meditação.
 class EstatisticasMeditacao {
@@ -18,14 +18,14 @@ class EstatisticasMeditacao {
 
 /// Controller que gerencia o estado do histórico de meditação usando Provider.
 class HistoricoController extends ChangeNotifier {
-  final HistoricoRepository repository;
+  final SupabaseClient _supabase = Supabase.instance.client;
 
   EstatisticasMeditacao _estatisticas = EstatisticasMeditacao.empty();
   bool _carregando = false;
   String? _erro;
   List<Map<String, dynamic>> _sessoes = [];
 
-  HistoricoController({required this.repository});
+  HistoricoController();
 
   // Getters
   EstatisticasMeditacao get estatisticas => _estatisticas;
@@ -37,70 +37,72 @@ class HistoricoController extends ChangeNotifier {
   Future<void> salvarSessao({
     required int duracao_segundos,
     int? meditacao_id,
-    bool parcial = false,
   }) async {
     try {
       _erro = null;
-      // Salvar sem exigir autenticação; userId opcional
-      await repository.salvarSessao(
-        userId: null,
-        duracao_segundos: duracao_segundos,
-        meditacao_id: meditacao_id,
-        parcial: parcial,
-      );
 
-      // Após salvar, atualiza as estatísticas e recarrega lista de sessões
+      final data = {
+        'duracao_segundos': duracao_segundos,
+        'data_sessao': DateTime.now().toIso8601String(),
+        if (meditacao_id != null) 'meditacao_id': meditacao_id,
+      };
+
+      await _supabase.from('historico_usuario').insert(data);
+
+      // Atualiza estado local após salvar
       await carregarEstatisticas();
       await carregarSessoes();
       debugPrint('[HistoricoController] Sessão salva com sucesso!');
+      notifyListeners();
     } catch (e) {
       _erro = 'Erro ao salvar sessão: $e';
-      debugPrint('[HistoricoController] $erro');
-      notifyListeners();
+      debugPrint('[HistoricoController] $_erro');
+      rethrow;
     }
   }
 
-  /// Carrega as estatísticas de meditação do usuário.
+  /// Carrega as estatísticas de meditação do banco (soma e contagem).
   Future<void> carregarEstatisticas() async {
     try {
       _carregando = true;
       _erro = null;
       notifyListeners();
 
-      // Buscar estatísticas sem exigir autenticação (global)
-      final dados = await repository.buscarEstatisticas(userId: null);
+      final response = await _supabase.from('historico_usuario').select('duracao_segundos');
+      final lista = List<Map<String, dynamic>>.from(response);
+
+      final totalVezes = lista.length;
+      int totalSegundos = 0;
+      for (var item in lista) {
+        totalSegundos += (item['duracao_segundos'] as int);
+      }
+      final totalMinutos = (totalSegundos / 60).round();
 
       _estatisticas = EstatisticasMeditacao(
-        totalVezes: dados['vezes'] ?? 0,
-        totalMinutos: dados['minutos'] ?? 0,
+        totalVezes: totalVezes,
+        totalMinutos: totalMinutos,
       );
-
-      debugPrint(
-          '[HistoricoController] Estatísticas carregadas: ${_estatisticas.totalVezes} vezes, ${_estatisticas.totalMinutos} min');
     } catch (e) {
       _erro = 'Erro ao carregar estatísticas: $e';
-      debugPrint('[HistoricoController] $erro');
+      debugPrint('[HistoricoController] $_erro');
     } finally {
       _carregando = false;
       notifyListeners();
     }
   }
 
-  /// Carrega todas as sessões de meditação do usuário.
+  /// Carrega todas as sessões.
   Future<void> carregarSessoes() async {
     try {
       _carregando = true;
       _erro = null;
       notifyListeners();
 
-      // Carrega todas as sessões sem exigir autenticação
-      _sessoes = await repository.obterTodas(userId: null);
-
-      debugPrint(
-          '[HistoricoController] ${_sessoes.length} sessões carregadas');
+      final response = await _supabase.from('historico_usuario').select().order('data_sessao', ascending: false);
+      _sessoes = List<Map<String, dynamic>>.from(response);
     } catch (e) {
       _erro = 'Erro ao carregar sessões: $e';
-      debugPrint('[HistoricoController] $erro');
+      debugPrint('[HistoricoController] $_erro');
     } finally {
       _carregando = false;
       notifyListeners();

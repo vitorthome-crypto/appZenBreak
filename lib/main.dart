@@ -10,8 +10,6 @@ import 'pages/demo_page.dart';
 import 'pages/policy_viewer_page.dart';
 import 'pages/home_page.dart';
 import 'features/historico/presentation/controllers/historico_controller.dart';
-import 'features/historico/data/datasources/historico_remote_data_source_impl.dart';
-import 'features/historico/data/repositories/historico_repository_impl.dart';
 import 'features/daily_goals/presentation/controllers/daily_goal_controller.dart';
 import 'features/daily_goals/data/datasources/daily_goal_local_data_source.dart';
 import 'features/daily_goals/data/repositories/daily_goal_repository_impl.dart';
@@ -76,14 +74,7 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider<PrefsService>.value(value: prefs!),
         ChangeNotifierProvider<HistoricoController>(
-          create: (_) {
-            final client = Supabase.instance.client;
-            final remoteDataSource =
-                HistoricoRemoteDataSourceImpl(client: client);
-            final repository =
-                HistoricoRepositoryImpl(remoteDataSource: remoteDataSource);
-            return HistoricoController(repository: repository);
-          },
+          create: (_) => HistoricoController(),
         ),
         // Fornecer o DailyGoalController já instanciado para que as telas
         // escutem `notifyListeners()` e atualizem imediatamente.
