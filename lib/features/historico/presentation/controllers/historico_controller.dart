@@ -43,7 +43,8 @@ class HistoricoController extends ChangeNotifier {
 
       final data = {
         'duracao_segundos': duracao_segundos,
-        'data_sessao': DateTime.now().toIso8601String(),
+        // Enviar timestamp em UTC para evitar discrepâncias com o servidor
+        'data_sessao': DateTime.now().toUtc().toIso8601String(),
         if (meditacao_id != null) 'meditacao_id': meditacao_id,
       };
 
