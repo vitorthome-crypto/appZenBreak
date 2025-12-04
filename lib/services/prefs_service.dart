@@ -40,6 +40,10 @@ class PrefsService {
   int get pauseDurationSeconds => _prefs.getInt('pause_duration_seconds') ?? 120;
   Future<void> setPauseDurationSeconds(int v) => _prefs.setInt('pause_duration_seconds', v);
 
+  // Theme preference
+  bool get darkTheme => _prefs.getBool('dark_theme') ?? false;
+  Future<void> setDarkTheme(bool v) => _prefs.setBool('dark_theme', v);
+
   // Convenience checks
   bool isAccepted(String version) => policiesVersionAccepted == version;
   bool isDemoDone() => demoCompleted;

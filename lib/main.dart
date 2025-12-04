@@ -10,6 +10,8 @@ import 'pages/demo_page.dart';
 import 'pages/policy_viewer_page.dart';
 import 'pages/home_page.dart';
 import 'features/historico/presentation/controllers/historico_controller.dart';
+import 'providers/theme_provider.dart';
+import 'theme/color_schemes.dart';
 import 'features/daily_goals/presentation/controllers/daily_goal_controller.dart';
 import 'features/daily_goals/data/datasources/daily_goal_local_data_source.dart';
 import 'features/daily_goals/data/repositories/daily_goal_repository_impl.dart';
@@ -66,13 +68,14 @@ class MyApp extends StatelessWidget {
       );
     }
 
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFF06B6D4), // Cyan 500 from PRD
-    );
+    // Using ColorScheme.fromSeed via `theme/color_schemes.dart`
 
     return MultiProvider(
       providers: [
         Provider<PrefsService>.value(value: prefs!),
+        ChangeNotifierProvider<ThemeController>(
+          create: (context) => ThemeController(Provider.of<PrefsService>(context, listen: false)),
+        ),
         ChangeNotifierProvider<HistoricoController>(
           create: (_) => HistoricoController(),
         ),
@@ -82,27 +85,25 @@ class MyApp extends StatelessWidget {
           value: dailyGoalController!,
         ),
       ],
-      child: MaterialApp(
-        title: 'ZenBreak',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: colorScheme,
-          textTheme: Typography.material2021().black.apply(
-                bodyColor: const Color(0xFF0F172A),
-              ),
+      child: Consumer<ThemeController>(
+        builder: (context, themeProvider, _) => MaterialApp(
+          title: 'ZenBreak',
+          debugShowCheckedModeBanner: false,
+          theme: appLightTheme,
+          darkTheme: appDarkTheme,
+          themeMode: themeProvider.themeMode,
+          initialRoute: '/',
+          routes: {
+            '/': (_) => const SplashPage(),
+            '/onboarding': (_) => const OnboardingPage(),
+            '/demo': (_) => const DemoPage(),
+            '/policy-viewer': (_) => const PolicyViewerPage(),
+            '/home': (_) => const HomePage(),
+                       '/metas': (_) => const MetasPage(),
+            '/historico': (_) => const HistoricoPage(),
+            '/meditation-history-demo': (_) => const MeditationHistoryDemoPage(),
+          },
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (_) => const SplashPage(),
-          '/onboarding': (_) => const OnboardingPage(),
-          '/demo': (_) => const DemoPage(),
-          '/policy-viewer': (_) => const PolicyViewerPage(),
-          '/home': (_) => const HomePage(),
-                     '/metas': (_) => const MetasPage(),
-          '/historico': (_) => const HistoricoPage(),
-          '/meditation-history-demo': (_) => const MeditationHistoryDemoPage(),
-        },
       ),
     );
   }

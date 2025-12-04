@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/prefs_service.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/breathing_session_with_history.dart';
 import '../features/historico/presentation/controllers/historico_controller.dart';
 
@@ -99,6 +100,16 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.pushNamed(context, '/policy-viewer');
+                      },
+                    ),
+                    const Divider(),
+                    SwitchListTile(
+                      secondary: const Icon(Icons.dark_mode),
+                      title: const Text('Tema escuro'),
+                      value: Provider.of<ThemeController>(context).isDark,
+                      onChanged: (v) {
+                        // Atualiza o controller para persistir e notificar ouvintes
+                        Provider.of<ThemeController>(context, listen: false).isDark = v;
                       },
                     ),
                   ],
