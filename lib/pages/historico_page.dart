@@ -24,6 +24,15 @@ class _HistoricoPageState extends State<HistoricoPage> {
     });
   }
 
+  Future<void> _onRefresh() async {
+    final controller = Provider.of<HistoricoController>(context, listen: false);
+    // Carregar sessões e estatísticas em paralelo
+    await Future.wait([
+      controller.carregarSessoes(),
+      controller.carregarEstatisticas(),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,36 +42,55 @@ class _HistoricoPageState extends State<HistoricoPage> {
       body: Consumer<HistoricoController>(
         builder: (context, historicoController, child) {
           if (historicoController.carregando) {
-            return const Center(child: CircularProgressIndicator());
+            // Allow pull-to-refresh while loading by providing a scrollable
+            return RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height - kToolbarHeight,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            );
           }
 
           if (historicoController.erro != null) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Erro ao carregar histórico',
-                      style: Theme.of(context).textTheme.titleLarge,
+            // Show error but keep area scrollable so RefreshIndicator works
+            return RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height - kToolbarHeight,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Erro ao carregar histórico',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            historicoController.erro ?? 'Erro desconhecido',
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton.icon(
+                            onPressed: () => historicoController.carregarSessoes(),
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Tentar Novamente'),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      historicoController.erro ?? 'Erro desconhecido',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () =>
-                          historicoController.carregarSessoes(),
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Tentar Novamente'),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );
@@ -71,44 +99,57 @@ class _HistoricoPageState extends State<HistoricoPage> {
           final sessoes = historicoController.sessoes;
 
           if (sessoes.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.history_outlined,
-                      size: 80,
-                      color: Colors.grey[400],
+            // Keep area scrollable to allow pull-to-refresh even when empty
+            return RefreshIndicator(
+              onRefresh: _onRefresh,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height - kToolbarHeight,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.history_outlined,
+                            size: 80,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Nenhuma sessão registrada',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
+                                ?.copyWith(color: Colors.grey),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Volte para a home e inicie uma meditação!',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: Colors.grey),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Nenhuma sessão registrada',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(color: Colors.grey),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Volte para a home e inicie uma meditação!',
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: Colors.grey),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(8.0),
-            itemCount: sessoes.length + 1,
-            itemBuilder: (context, index) {
+          return RefreshIndicator(
+            onRefresh: _onRefresh,
+            child: ListView.builder(
+              padding: const EdgeInsets.all(8.0),
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: sessoes.length + 1,
+              itemBuilder: (context, index) {
               // Header com estatísticas
               if (index == 0) {
                 final totalVezes = sessoes.length;
@@ -195,7 +236,8 @@ class _HistoricoPageState extends State<HistoricoPage> {
                 ),
               );
             },
-          );
+              ),
+            );
         },
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart' show dotenv;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,6 +71,8 @@ class MyApp extends StatelessWidget {
 
     // Using ColorScheme.fromSeed via `theme/color_schemes.dart`
 
+    // Custom scroll behavior to allow mouse drag on web/desktop
+    // so `RefreshIndicator` responds to mouse pull gestures.
     return MultiProvider(
       providers: [
         Provider<PrefsService>.value(value: prefs!),
@@ -87,6 +90,7 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<ThemeController>(
         builder: (context, themeProvider, _) => MaterialApp(
+          scrollBehavior: DesktopScrollBehavior(),
           title: 'ZenBreak',
           debugShowCheckedModeBanner: false,
           theme: appLightTheme,
@@ -107,5 +111,17 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// ScrollBehavior que habilita arrastar com mouse e touch;
+/// necessário para que `RefreshIndicator` funcione com mouse no web/desktop.
+class DesktopScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.unknown,
+      };
 }
 

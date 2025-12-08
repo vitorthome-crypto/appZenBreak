@@ -36,6 +36,13 @@ class _PolicyViewerPageState extends State<PolicyViewerPage> {
   }
 
   Future<void> _load() async {
+    // Reset progress and agree flag while reloading
+    setState(() {
+      _privacyProgress = 0.0;
+      _termsProgress = 0.0;
+      _agreeChecked = false;
+    });
+
     final p = await rootBundle.loadString('assets/policies/privacy_v1.md');
     final t = await rootBundle.loadString('assets/policies/terms_v1.md');
     setState(() {
@@ -65,9 +72,14 @@ class _PolicyViewerPageState extends State<PolicyViewerPage> {
                 Expanded(
                   child: Column(
                     children: [
-                      Expanded(child: ScrollableMarkdown(key: _privacyKey, data: _privacy!, onProgress: (p) {
-                        setState(() => _privacyProgress = p);
-                      })),
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: _load,
+                          child: ScrollableMarkdown(key: _privacyKey, data: _privacy!, onProgress: (p) {
+                            setState(() => _privacyProgress = p);
+                          }),
+                        ),
+                      ),
                       LinearProgressIndicator(value: _privacyProgress),
                     ],
                   ),
@@ -76,9 +88,14 @@ class _PolicyViewerPageState extends State<PolicyViewerPage> {
                 Expanded(
                   child: Column(
                     children: [
-                      Expanded(child: ScrollableMarkdown(key: _termsKey, data: _terms!, onProgress: (p) {
-                        setState(() => _termsProgress = p);
-                      })),
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: _load,
+                          child: ScrollableMarkdown(key: _termsKey, data: _terms!, onProgress: (p) {
+                            setState(() => _termsProgress = p);
+                          }),
+                        ),
+                      ),
                       LinearProgressIndicator(value: _termsProgress),
                     ],
                   ),
@@ -160,6 +177,7 @@ class _ScrollableMarkdownState extends State<ScrollableMarkdown> {
       data: widget.data,
       controller: _controller,
       selectable: true,
+      physics: const AlwaysScrollableScrollPhysics(),
     );
   }
 }
