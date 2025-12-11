@@ -25,7 +25,7 @@ Utilizamos serviços de terceiros confiáveis para operar:
 Não vendemos nem compartilhamos seus dados pessoais com anunciantes ou terceiros não relacionados à infraestrutura do app.
 
 1.4. Seus Direitos
-Você tem o direito de solicitar a exclusão de todo o seu histórico de dados a qualquer momento. Para isso, utilize a função de "Excluir Conta/Dados" no aplicativo (se disponível) ou entre em contato conosco.
+Você tem o direito de solicitar a exclusão de todo o seu histórico de dados a qualquer momento. Para isso, entre em contato conosco.
 
 2. Contato
 Em caso de dúvidas sobre estes termos ou sobre seus dados, entre em contato pelo e-mail: vitorthome@alunos.utfpr.edu.br
